@@ -9,10 +9,6 @@ file(GLOB_RECURSE SOURCES "src/*.cpp")
 list(REMOVE_ITEM SOURCES "src/main.cpp")
 target_sources("${PROJECT_NAME}" PRIVATE "${SOURCES}")
 
-include_directories(src/include)
-
-add_compile_definitions("_LANGUAGE_C_PLUS_PLUS")
-
 set_property(TARGET "${PROJECT_NAME}" PROPERTY CXX_STANDARD 17)
 set_property(TARGET "${PROJECT_NAME}" PROPERTY C_STANDARD 17)
 
@@ -27,8 +23,14 @@ endif()
 
 target_link_libraries("${PROJECT_NAME}" "${VKLIBPATH}/vulkan-1.lib")
 
-# SET UP OPENGL LIBRARY
+# SET UP DIRECT3D LIBRARIES
+if(WIN32)
+	target_link_libraries("${PROJECT_NAME}" d3d12.lib)
+	target_link_libraries("${PROJECT_NAME}" d3d11.lib)
+	add_compile_definitions("CHECK_D3D")
+endif()
 
+# SET UP OPENGL LIBRARY
 find_package(OpenGL)
 target_link_libraries("${PROJECT_NAME}" opengl32)
 
