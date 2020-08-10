@@ -1,0 +1,6 @@
+*.spv
+
+.vs/
+out/
+Build/
+build/
