@@ -27,6 +27,11 @@ endif()
 
 target_link_libraries("${PROJECT_NAME}" "${VKLIBPATH}/vulkan-1.lib")
 
+# SET UP OPENGL LIBRARY
+
+find_package(OpenGL)
+target_link_libraries("${PROJECT_NAME}" opengl32)
+
 # SET UP GLFW LIBRARY
 option(BUILD_SHARED_LIBS ON)
 add_subdirectory("glfw")
