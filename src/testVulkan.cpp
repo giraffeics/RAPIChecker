@@ -10,6 +10,9 @@ PFN_vkCreateInstance mvkCreateInstance;
 PFN_vkEnumeratePhysicalDevices mvkEnumeratePhysicalDevices;
 PFN_vkGetPhysicalDeviceProperties mvkGetPhysicalDeviceProperties;
 PFN_vkDestroyInstance mvkDestroyInstance;
+PFN_vkGetPhysicalDeviceQueueFamilyProperties mvkGetPhysicalDeviceQueueFamilyProperties;
+
+bool isDeviceValid(VkPhysicalDevice device);
 
 void testVulkan(uint32_t* major, uint32_t* minor)
 {
@@ -43,7 +46,7 @@ void testVulkan(uint32_t* major, uint32_t* minor)
 	createInfo.pApplicationInfo = &appInfo;
 
 	uint32_t glfwExtensionCount = 0;
-	const char** glfwExtensions;
+	const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
 	createInfo.enabledLayerCount = 0;
 
@@ -61,6 +64,7 @@ void testVulkan(uint32_t* major, uint32_t* minor)
 	mvkEnumeratePhysicalDevices = (PFN_vkEnumeratePhysicalDevices)glfwGetInstanceProcAddress(instance, "vkEnumeratePhysicalDevices");
 	mvkGetPhysicalDeviceProperties = (PFN_vkGetPhysicalDeviceProperties)glfwGetInstanceProcAddress(instance, "vkGetPhysicalDeviceProperties");
 	mvkDestroyInstance = (PFN_vkDestroyInstance)glfwGetInstanceProcAddress(instance, "vkDestroyInstance");
+	mvkGetPhysicalDeviceQueueFamilyProperties = (PFN_vkGetPhysicalDeviceQueueFamilyProperties)glfwGetInstanceProcAddress(instance, "vkGetPhysicalDeviceQueueFamilyProperties");
 
 	/*** QUERY FOR API SUPPORT FROM DEVICES ***/
 	uint32_t numPhysicalDevices = 0;
@@ -73,12 +77,41 @@ void testVulkan(uint32_t* major, uint32_t* minor)
 		VkPhysicalDeviceProperties properties;
 		mvkGetPhysicalDeviceProperties(devices[i], &properties);
 
-		*major = VK_VERSION_MAJOR(properties.apiVersion);
-		*minor = VK_VERSION_MINOR(properties.apiVersion);
+		if (isDeviceValid(devices[i]))
+		{
+			*major = VK_VERSION_MAJOR(properties.apiVersion);
+			*minor = VK_VERSION_MINOR(properties.apiVersion);
+		}
 	}
 	
 	/*** CLEANUP ***/
 	mvkDestroyInstance(instance, nullptr);
 	delete[] devices;
 	glfwTerminate();
+}
+
+/// <summary>
+/// Returns true if the given physical device has the necessary features.
+/// </summary>
+/// <param name="device"></param>
+/// <param name="properties"></param>
+/// <returns></returns>
+bool isDeviceValid(VkPhysicalDevice device)
+{
+	uint32_t numQueueFamilies;
+	mvkGetPhysicalDeviceQueueFamilyProperties(device, &numQueueFamilies, nullptr);
+	VkQueueFamilyProperties* queueFamilyProperties = new VkQueueFamilyProperties[numQueueFamilies];
+	mvkGetPhysicalDeviceQueueFamilyProperties(device, &numQueueFamilies, queueFamilyProperties);
+
+	uint64_t availableQueueFlags = 0;
+	for (uint32_t i = 0; i < numQueueFamilies; i++)
+	{
+		availableQueueFlags |= queueFamilyProperties[i].queueFlags;
+	}
+	delete[] queueFamilyProperties;
+
+	if (availableQueueFlags & VK_QUEUE_GRAPHICS_BIT == 0)
+		return false;
+
+	return true;
 }
