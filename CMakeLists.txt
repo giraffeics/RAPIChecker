@@ -54,6 +54,8 @@ find_package(OpenGL)
 target_link_libraries("${PROJECT_NAME}" opengl32)
 
 # SET UP GLFW LIBRARY
+set(USE_MSVC_RUNTIME_LIBRARY_DLL OFF FORCE)
+set(GLFW_BUILD_DOCS OFF FORCE)
 add_subdirectory("glfw")
 include_directories("glfw/include")
 target_link_libraries("${PROJECT_NAME}" glfw ${GLFW_LIBRARIES})
