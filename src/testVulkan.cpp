@@ -11,6 +11,7 @@ PFN_vkEnumeratePhysicalDevices mvkEnumeratePhysicalDevices;
 PFN_vkGetPhysicalDeviceProperties mvkGetPhysicalDeviceProperties;
 PFN_vkDestroyInstance mvkDestroyInstance;
 PFN_vkGetPhysicalDeviceQueueFamilyProperties mvkGetPhysicalDeviceQueueFamilyProperties;
+PFN_vkEnumerateDeviceExtensionProperties mvkEnumerateDeviceExtensionProperties;
 
 bool isDeviceValid(VkPhysicalDevice device);
 
@@ -65,6 +66,7 @@ void testVulkan(uint32_t* major, uint32_t* minor)
 	mvkGetPhysicalDeviceProperties = (PFN_vkGetPhysicalDeviceProperties)glfwGetInstanceProcAddress(instance, "vkGetPhysicalDeviceProperties");
 	mvkDestroyInstance = (PFN_vkDestroyInstance)glfwGetInstanceProcAddress(instance, "vkDestroyInstance");
 	mvkGetPhysicalDeviceQueueFamilyProperties = (PFN_vkGetPhysicalDeviceQueueFamilyProperties)glfwGetInstanceProcAddress(instance, "vkGetPhysicalDeviceQueueFamilyProperties");
+	mvkEnumerateDeviceExtensionProperties = (PFN_vkEnumerateDeviceExtensionProperties)glfwGetInstanceProcAddress(instance, "vkEnumerateDeviceExtensionProperties");
 
 	/*** QUERY FOR API SUPPORT FROM DEVICES ***/
 	uint32_t numPhysicalDevices = 0;
@@ -103,6 +105,8 @@ bool isDeviceValid(VkPhysicalDevice device)
 	VkQueueFamilyProperties* queueFamilyProperties = new VkQueueFamilyProperties[numQueueFamilies];
 	mvkGetPhysicalDeviceQueueFamilyProperties(device, &numQueueFamilies, queueFamilyProperties);
 
+	VkBool32 presentSupport = VK_FALSE;
+
 	uint64_t availableQueueFlags = 0;
 	for (uint32_t i = 0; i < numQueueFamilies; i++)
 	{
@@ -110,7 +114,18 @@ bool isDeviceValid(VkPhysicalDevice device)
 	}
 	delete[] queueFamilyProperties;
 
-	if (availableQueueFlags & VK_QUEUE_GRAPHICS_BIT == 0)
+	uint32_t numSupportedExtensions;
+	mvkEnumerateDeviceExtensionProperties(device, nullptr, &numSupportedExtensions, nullptr);
+	VkExtensionProperties* extensions = new VkExtensionProperties[numSupportedExtensions];
+	mvkEnumerateDeviceExtensionProperties(device, nullptr, &numSupportedExtensions, extensions);
+
+	for (uint32_t i = 0; i < numSupportedExtensions; i++)
+	{
+		if (strcmp(extensions[i].extensionName, VK_KHR_SWAPCHAIN_EXTENSION_NAME) == 0)
+			presentSupport = true;
+	}
+
+	if ((availableQueueFlags & VK_QUEUE_GRAPHICS_BIT == 0) || (presentSupport == VK_FALSE))
 		return false;
 
 	return true;
