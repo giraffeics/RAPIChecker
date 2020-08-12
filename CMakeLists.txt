@@ -27,6 +27,7 @@ target_link_libraries("${PROJECT_NAME}" "${VKLIBPATH}/vulkan-1.lib")
 if(WIN32)
 	target_link_libraries("${PROJECT_NAME}" d3d12.lib)
 	target_link_libraries("${PROJECT_NAME}" d3d11.lib)
+	target_link_libraries("${PROJECT_NAME}" dxgi.lib)
 	add_compile_definitions("CHECK_D3D")
 endif()
 

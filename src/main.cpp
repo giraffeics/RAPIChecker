@@ -32,6 +32,5 @@ int main()
     /*** TELL USER TO SUBMIT THESE RESULTS ***/
     char input;
     std::cout << "Enter these results into the survey and then close this window." << std::endl;
-    while (true)
-        std::cin >> input;
+    std::cin >> input;  // don't close until something has been entered
 }
