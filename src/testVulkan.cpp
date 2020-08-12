@@ -74,13 +74,16 @@ void testVulkan(uint32_t* major, uint32_t* minor)
 	VkPhysicalDevice* devices = new VkPhysicalDevice[numPhysicalDevices];
 	mvkEnumeratePhysicalDevices(instance, &numPhysicalDevices, devices);
 
+	uint32_t maxVersion = 0;
+
 	for (uint32_t i = 0; i < numPhysicalDevices; i++)
 	{
 		VkPhysicalDeviceProperties properties;
 		mvkGetPhysicalDeviceProperties(devices[i], &properties);
 
-		if (isDeviceValid(devices[i]))
+		if (properties.apiVersion > maxVersion && isDeviceValid(devices[i]))
 		{
+			maxVersion = properties.apiVersion;
 			*major = VK_VERSION_MAJOR(properties.apiVersion);
 			*minor = VK_VERSION_MINOR(properties.apiVersion);
 		}
