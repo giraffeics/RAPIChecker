@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.8)
 
-project("RAPISurvey")
+project("RAPIChecker")
 
 # ADD PROJECT SOURCES
 add_executable("${PROJECT_NAME}" "src/main.cpp")
