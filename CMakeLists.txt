@@ -15,14 +15,6 @@ set_property(TARGET "${PROJECT_NAME}" PROPERTY C_STANDARD 17)
 # SET UP VULKAN LIBRARY
 include_directories("$ENV{VULKAN_SDK}/Include")
 
-set(VKLIBPATH "$ENV{VULKAN_SDK}/Lib32")
-
-if (${CMAKE_SIZEOF_VOID_P} MATCHES 8)
-	set(VKLIBPATH "$ENV{VULKAN_SDK}/Lib")
-endif()
-
-target_link_libraries("${PROJECT_NAME}" "${VKLIBPATH}/vulkan-1.lib")
-
 # SET UP DIRECT3D LIBRARIES
 if(WIN32)
 	target_link_libraries("${PROJECT_NAME}" d3d12.lib)
@@ -36,7 +28,6 @@ find_package(OpenGL)
 target_link_libraries("${PROJECT_NAME}" opengl32)
 
 # SET UP GLFW LIBRARY
-option(BUILD_SHARED_LIBS ON)
 add_subdirectory("glfw")
 include_directories("glfw/include")
 target_link_libraries("${PROJECT_NAME}" glfw ${GLFW_LIBRARIES})

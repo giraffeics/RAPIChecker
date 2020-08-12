@@ -33,4 +33,6 @@ int main()
     char input;
     std::cout << "Enter these results into the survey and then close this window." << std::endl;
     std::cin >> input;  // don't close until something has been entered
+
+    return 0;
 }
